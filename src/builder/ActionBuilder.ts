@@ -1,6 +1,5 @@
 import { ActionFlow } from './ActionFlow';
 import { InputAction } from './actions/inputAction';
-import { SelectAction } from './actions/selectAction';
 import { ActionRegister } from './ActionRegister';
 import _ from 'lodash';
 import { actionConstructor, Operation } from '../type';
@@ -36,8 +35,6 @@ export class ActionBuilder {
      * It includes built-in actions and any additional actions registered via the `registerAction` method.
      */
     private readonly actionRegisterIndex: Record<string, actionConstructor> = {
-        input: InputAction,
-        select: SelectAction,
     };
 
     /**
