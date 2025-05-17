@@ -37,3 +37,6 @@ export type Operation = {
  * @returns void
  */
 export type errorHandler = (error: unknown, callback: any) => void;
+
+export type SupportedTypes = 'xml' | 'json' | 'yml' | 'yaml' | 'toml';
+
