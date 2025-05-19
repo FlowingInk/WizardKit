@@ -4,11 +4,12 @@ import {
     describe,
     expect,
     test,
+    jest,
 } from '@jest/globals';
-import { ActionBuilder } from '../../src/action-builder/ActionBuilder';
-import { ActionRegister } from '../../src/action-builder/ActionRegister';
-import { BaseAction } from '../../src/action-builder/actions/baseAction';
-import { ActionFlow } from '../../src/action-builder/ActionFlow';
+import { ActionBuilder } from '../../src/builder/ActionBuilder';
+import { ActionRegister } from '../../src/builder/ActionRegister';
+import { BaseAction } from '../../src/actions/baseAction';
+import { ActionFlow } from '../../src/builder/ActionFlow';
 
 type actionConstructor = new (...args: any[]) => BaseAction;
 let testBuilder_cache_true: ActionBuilder;
@@ -70,7 +71,7 @@ afterEach(() => {
 describe('action builder testing', () => {
     describe('basic function testing', () => {
         test('should automatically call initAction upon instantiation', () => {
-            expect(ActionRegister.getTypes().length > 0).toBeTruthy();
+            expect(ActionRegister.getTypes().length>0).toBeTruthy();
         });
         test('should ensure actionRegisterIndex and ActionRegister states are consistent upon initialization', () => {
             const registry = testBuilder_cache_true.getActionRegisterIndex();
@@ -78,6 +79,14 @@ describe('action builder testing', () => {
                 Object.entries(registry) as Array<[string, actionConstructor]>;
             expect(arrayFormat).toStrictEqual(ActionRegister.getTypes());
         });
+        test('should not execute the registration action class again after performing it once',()=>{
+            const actionCounter_1 = ActionRegister.getTypes().length;
+            ActionRegister.unregister('input');
+            const testBuilder_temp=new ActionBuilder();
+            const actionCounter_2 = ActionRegister.getTypes().length;
+            expect(actionCounter_1===actionCounter_2).toBeFalsy();
+            
+        })
         test('should synchronous update into actionRegisterIndex object when registerAction is called', () => {
             testBuilder_cache_true.registerAction('testAction', testAction);
             expect(
@@ -93,7 +102,7 @@ describe('action builder testing', () => {
         test('should create an ActionFlow instance when startWith is called', () => {
             testBuilder_cache_true.registerAction('testAction', testAction);
             expect(
-                testBuilder_cache_true.startWith('testAction'),
+                testBuilder_cache_true.create('testAction'),
             ).toBeInstanceOf(ActionFlow);
         });
         test('should update action in actionRegisterIndex when updateAction is called', async () => {
@@ -115,8 +124,8 @@ describe('action builder testing', () => {
             testBuilder_cache_true.updateAction('testAction', testAction2);
             const result = (
                 await testBuilder_cache_true
-                    .startWith('testAction')
-                    .executeAll()
+                    .create('testAction')
+                    .end()
             ).getValue('testAction')[0][1];
             expect(result).toBe('test2');
         });
@@ -134,10 +143,10 @@ describe('action builder testing', () => {
                 testAction_chain3,
             );
             const result = await testBuilder_cache_true
-                .startWith('testAction_chain1', { inputNumber: 5 })
+                .create('testAction_chain1', { inputNumber: 5 })
                 .next('testAction_chain2')
                 .next('testAction_chain3')
-                .executeAll();
+                .end();
             expect(result.fromArray()).toStrictEqual([
                 ['testAction_chain1', 5],
                 ['testAction_chain2', 6],
@@ -176,7 +185,7 @@ describe('action builder testing', () => {
         test('should throw an error when startWith is called without any register actions', () => {
             ActionRegister.clear();
             expect(() => {
-                testBuilder_cache_true.startWith('testAction');
+                testBuilder_cache_true.create('testAction');
             }).toThrow('testAction is not register');
         });
     });

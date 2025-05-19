@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-import { ActionFlow } from '../../src/action-builder/ActionFlow';
-import { BaseAction } from '../../src/action-builder/actions/baseAction';
-import { ActionRegister } from '../../src/action-builder/ActionRegister';
-import { ActionQueue } from '../../src/action-builder/ActionQueue';
-import { ActionResult } from '../../src/action-builder/ActionResult';
+import { ActionFlow } from '../../src/builder/ActionFlow';
+import { BaseAction } from '../../src/actions/baseAction';
+import { ActionRegister } from '../../src/builder/ActionRegister';
+import { ActionResult } from '../../src/builder/ActionResult';
 
 class testAction extends BaseAction {
     type: string = 'testAction';
@@ -36,12 +35,12 @@ describe('action flow testing', () => {
             expect(thirdCalled).toBe(testFlow_cache_true);
         });
         test('should return ActionResult instance when executeAll method is called', async () => {
-            expect(await testFlow_cache_true.executeAll()).toBeInstanceOf(
+            expect(await testFlow_cache_true.end()).toBeInstanceOf(
                 ActionResult,
             );
         });
         test('should return an empty ActionResult instance when executeAll is called on an empty ActionQueue', async () => {
-            const testResult = await testFlow_cache_true.executeAll();
+            const testResult = await testFlow_cache_true.end();
             expect(testResult.fromArray()).toStrictEqual([]);
         });
         test('should trigger execution of all actions after multiple next() calls when executeAll() is invoked', async () => {
@@ -49,7 +48,7 @@ describe('action flow testing', () => {
                 .next('testAction')
                 .next('testAction')
                 .next('testAction')
-                .executeAll();
+                .end();
             expect(result.fromArray()).toStrictEqual([
                 ['testAction', 'a'],
                 ['testAction', 'a'],
@@ -61,7 +60,7 @@ describe('action flow testing', () => {
                 .next('testAction')
                 .next('testAction')
                 .next('testAction')
-                .executeAll();
+                .end();
             expect(result.fromArray()).toStrictEqual([]);
         });
     });
@@ -84,11 +83,11 @@ describe('action flow testing', () => {
             ActionRegister.register('testAction2', testAction2);
             const result = await testFlow_cache_true
                 .next('testAction2')
-                .executeAll();
+                .end();
             expect(result.fromArray()).toStrictEqual([['testAction2', {}]]);
             const result1 = await testFlow_cache_true
                 .next('testAction2', { flag: true })
-                .executeAll();
+                .end();
             expect(result1.fromArray()).toStrictEqual([
                 ['testAction2', { flag: true }],
             ]);
@@ -96,7 +95,7 @@ describe('action flow testing', () => {
     });
     describe('Boundary condition testing', () => {
         test('should return an empty result when executeAll is called without invoking next', () => {
-            expect(testFlow_cache_true.executeAll()).resolves.toStrictEqual(
+            expect(testFlow_cache_true.end()).resolves.toStrictEqual(
                 new ActionResult(),
             );
         });

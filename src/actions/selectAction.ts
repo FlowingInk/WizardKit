@@ -12,9 +12,7 @@ export class SelectAction extends BaseAction {
         this.selectConfig = selectConfig;
     }
 
-   public async execute():Promise<any>{
+    public async execute(...args: any[]): Promise<any> {
         return select(this.selectConfig);
-   }
+    }
 }
-
-

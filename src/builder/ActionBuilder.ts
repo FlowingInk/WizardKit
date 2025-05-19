@@ -1,8 +1,10 @@
 import { ActionFlow } from './ActionFlow';
-import { InputAction } from './actions/inputAction';
+import { InputAction } from '../actions/inputAction';
 import { ActionRegister } from './ActionRegister';
 import _ from 'lodash';
 import { actionConstructor, Operation } from '../type';
+import { SelectAction } from '../actions/selectAction';
+import { CheckboxAction } from '../actions/checkboxAction';
 
 /**
  * A builder class for creating and managing a sequence of actions with optional caching of intermediate results.
@@ -35,6 +37,9 @@ export class ActionBuilder {
      * It includes built-in actions and any additional actions registered via the `registerAction` method.
      */
     private readonly actionRegisterIndex: Record<string, actionConstructor> = {
+        'input':InputAction,
+        'select':SelectAction,
+        'checkbox':CheckboxAction
     };
 
     /**
@@ -58,6 +63,9 @@ export class ActionBuilder {
      * This method is called automatically during construction to ensure all predefined actions are ready for use.
      */
     private initAction(): void {
+        if(ActionRegister.getTypes().length>0){
+            return ;
+        }
         for (const key in this.actionRegisterIndex) {
             ActionRegister.register(key, this.actionRegisterIndex[key]);
         }
@@ -115,7 +123,7 @@ export class ActionBuilder {
      * @returns A new `ActionFlow` instance configured with the provided action and parameters.
      * @see {@link ActionFlow} for more details on the `ActionFlow` class.
      */
-    public startWith(type: string, params: object = {}): ActionFlow {
+    public create(type: string, params: object = {}): ActionFlow {
         return new ActionFlow(this.cacheSteps).next(type, params);
     }
 

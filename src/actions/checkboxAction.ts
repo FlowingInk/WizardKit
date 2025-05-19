@@ -10,9 +10,10 @@ export class CheckboxAction extends BaseAction {
     constructor(checkboxConfig: CheckboxConfig<any>) {
         super();
         this.checkboxConfig = checkboxConfig;
+
     }
 
-    public async execute() {
+    public async execute(...args: any[]) {
         return checkbox(this.checkboxConfig);
     }
 }
