@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
-import { ActionResult } from '../../src/action-builder/ActionResult';
+import { ActionResult } from '../../src/builder/ActionResult';
 
 let testResult: ActionResult;
 beforeEach(() => {

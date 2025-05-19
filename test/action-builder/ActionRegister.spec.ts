@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
-import { BaseAction } from '../../src/action-builder/actions/baseAction';
-import { ActionRegister } from '../../src/action-builder/ActionRegister';
+import { BaseAction } from '../../src/actions/baseAction';
+import { ActionRegister } from '../../src/builder/ActionRegister';
 
 class TestAction extends BaseAction {
     type: string = 'TestAction';

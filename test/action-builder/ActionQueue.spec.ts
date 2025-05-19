@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { BaseAction } from '../../src/action-builder/actions/baseAction';
-import { ActionQueue } from '../../src/action-builder/ActionQueue';
-import { ActionResult } from '../../src/action-builder/ActionResult';
+import { BaseAction } from '../../src/actions/baseAction';
+import { ActionQueue } from '../../src/builder/ActionQueue';
+import { ActionResult } from '../../src/builder/ActionResult';
 
 class testAction_async1 extends BaseAction {
     public type: string = 'test_async1';

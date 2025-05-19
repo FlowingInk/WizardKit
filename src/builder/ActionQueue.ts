@@ -1,6 +1,6 @@
 import { errorHandler, Operation } from '../type';
 import { ActionResult } from './ActionResult';
-import { BaseAction } from './actions/baseAction';
+import { BaseAction } from '../actions/baseAction';
 
 //TODO use the async-mutex lib to rewrite this class and tests
 /**
@@ -137,27 +137,42 @@ export class ActionQueue {
         let nextParams: any[] | null = null;
         while (this.actionQueue.length > 0) {
             const action: BaseAction = this.actionQueue.shift()!;
-            try {
-                let result = action.execute(nextParams);
-                if (result instanceof Promise) {
-                    result = await result;
-                }
-                nextParams = result;
-                if (this.cacheSteps)
-                    actionResult.setResult(
-                        action.type,
-                        result !== undefined ? result : null,
-                    );
-            } catch (error) {
-                this.isProcessing = false;
-                if (this.errorHandler) {
-                    this.errorHandler(error, action);
-                } else {
-                    throw error;
-                }
-            }
+            nextParams = await this.executeAction(action, nextParams);
+            if (this.cacheSteps)
+                actionResult.setResult(
+                    action.type,
+                    nextParams !== undefined ? nextParams : null,
+                );
         }
         this.isProcessing = false;
         return actionResult;
+    }
+
+    /**
+     * Executes the specified action.
+     *
+     * This function is responsible for asynchronously executing the given action and handling the result or potential errors.
+     * It also updates the action result object with the result, unless the result is undefined, in which case it is set to null.
+     *
+     * @param action The action to execute, must be an instance of BaseAction
+     * @param nextParams The parameters for the next action, can be any array or null
+     * @returns The result of the action. If the result is a Promise, it waits for it and returns the resolved value
+     */
+    private async executeAction(action: BaseAction, nextParams: any[] | null) {
+        try {
+            let result = action.execute(nextParams);
+            if (result instanceof Promise) {
+                result = await result;
+            }
+
+            return result;
+        } catch (error) {
+            this.isProcessing = false;
+            if (this.errorHandler) {
+                this.errorHandler(error, action);
+            } else {
+                throw error;
+            }
+        }
     }
 }
